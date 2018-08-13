@@ -2,9 +2,9 @@ from book import Book
 import itertools
 
 class User:
-	nextid = itertools.count()
+	userId = itertools.count()
 	def __init__(self, email, username, password):
-		self.id = next(User.nextid)
+		self.id = next(User.userId)
 		self.email = email
 		self.username = username
 		self.password = password

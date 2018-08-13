@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+	<h1>{{id}}</h1>
+	<ul class = "list-group">
+		{% for comment in comments %}
+			<li class = "list-group-item"><a href = "article/{{comment.id}}">{{comment.body}}</a> </li>
+		{% endfor %}
+	</ul>
+{% endblock %}
