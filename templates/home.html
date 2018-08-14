@@ -1,0 +1,52 @@
+<!--
+# Copyright (c) 2018 Cole Nixon
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, 
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+# subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+{% extends 'layout.html' %}
+
+{% block body %}
+	{% if session.logged_in %}
+	<div class="jumbotron text-center">
+		<h1>My Favorite Book</h1>
+		<p class = "lead">Sharing the experience.</p>
+	</div>
+
+	{% else %}
+
+	<div class="jumbotron text-center">
+		<h1>My Favorite Book</h1>
+		<p class = "lead">Its about sharing the experience.</p>
+		<hr class="my-4">
+		<p>A platform for book lovers to share their personal copy of their favorite books with the world and friends alike. </p>
+		<p>Each book has it's own page, funcitoning like a blog for its readers to share comments, discuss the story, or ask questions. Partake in discussion with everyone who has held YOUR copy of the book.</p>
+		<div class="btn-group">
+			<a href="/register" class="btn btn-primary btn-md">Register</a>
+
+			<a href="/about" class="btn btn-info btn-md">Learn More</a>
+		</div>
+	</div>
+
+	{% endif %}
+
+	<div class="jumbotron text-center" id="mainpage">
+		<div class="text-center" id="whiteplease">
+			<h3>What are my options?</h3>
+			<div class="btn-group">
+				<a href="/books" class="btn btn-primary btn-md">My Books</a>
+
+				<a href="/add_book" class="btn btn-info btn-md">Register A Book</a>
+
+				<a href="/profile" class="btn btn-info btn-md">My Profile</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}
