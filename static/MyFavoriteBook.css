@@ -1,0 +1,8 @@
+body { 
+	padding-top: 65px;
+}
+#mainpage {
+	background-image: url('https://images.unsplash.com/photo-1496104679561-38d3af73f9b0?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=f6bbafb7818c9607c9b384cb2ff9102f&auto=format&fit=crop&w=1322&q=80');
+	background-size: cover;
+    background-clip: border-box;
+}
