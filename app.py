@@ -1,3 +1,18 @@
+# Copyright (c) 2018 Cole Nixon
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, 
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+# subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
 # pip/Homebrew imports
 from flask import Flask, request, render_template, flash, redirect, url_for, session, logging
 from flask_mysqldb import MySQL
@@ -5,23 +20,36 @@ from wtforms import Form, StringField, IntegerField, TextAreaField, PasswordFiel
 from passlib.hash import sha256_crypt
 from functools import wraps
 
+import requests, sys
+
 # Personal imports
 
 from myForms import PageForm, CommentForm, RegisterForm, BookForm
 
 
-app = Flask(__name__)
+if len(sys.argv) != 2:
+	print("\tThis program expects a single argument, <databaseName> to be passed in.\n")
+	print("\tPlease execute with format    :\t python app.py <databaseName>")
+	sys.exit()
 
+
+
+
+app = Flask(__name__)
 
 # Config MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_DB'] = 'my_favorite_book'
+app.config['MYSQL_DB'] = sys.argv[1]
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 # Init MySQL
 mysql = MySQL(app)
 
+start_up = 0
+
+
+# Wraps for Access control
 def user_logged_in(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
@@ -34,6 +62,17 @@ def user_logged_in(f):
 
 @app.route('/')
 def index():
+	global start_up
+	if start_up == 0:
+		cursorOnInit = mysql.connection.cursor()
+		try:
+			cursorOnInit.execute("SELECT * from USERS")
+		except:
+			cursorOnInit.execute("CREATE TABLE users(id INT(11) auto_increment primary key, email VARCHAR(100), username VARCHAR(30), password VARCHAR(100), register_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+			cursorOnInit.execute("CREATE TABLE books(id INT(11) auto_increment primary key, title VARCHAR(100), bio TEXT, author VARCHAR(50), owner VARCHAR(100), userId INT(11), FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE, date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+			cursorOnInit.execute("CREATE TABLE comments(id INT(11) auto_increment primary key, page INT(6) NOT NULL, body TEXT, owner VARCHAR(100), userId INT(11), FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE, bookId INT(11), FOREIGN KEY(bookId) REFERENCES books(id) ON DELETE CASCADE, date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+		start_up = 1
+
 	return render_template('home.html')
 
 @app.route('/about')
@@ -201,11 +240,16 @@ def add_book():
 	return render_template('add_book.html', form=form)
 
 
-# First thing user sees upon login
-@app.route('/dashboard')
+
+@app.route('/qr/<int:id>')
 @user_logged_in
-def dashboard():
-	return render_template('dashboard.html')
+def qrdl(id):
+	url = 'https://api.qrserver.com/v1/create-qr-code/?data=http://localhost:5000/book/'+str(id)+'&size=150x150'
+	r = requests.get(url, allow_redirects=True)
+	file = 'qr'+str(id)+'.png'
+	open(file, 'wb').write(r.content)
+	flash('Successfully downloaded QR Code to the directory of this application', 'success')
+	return redirect(url_for('books'))
 
 # Redirect to the home... 
 @app.route('/logout')
@@ -215,11 +259,13 @@ def logout():
 	flash('Successfully logged out', 'success')
 	return redirect(url_for('login'))
 
-	
+
 # Actual Script...
 if __name__ == '__main__':
 	app.secret_key='secret123'
+
 	app.run(debug=True) #Debug mode turns on automatic server refresh on save
+
 
 
 
