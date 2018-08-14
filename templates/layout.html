@@ -4,21 +4,16 @@
 	<meta charset="utf-8">
 	<title>MyFavoriteBook</title>
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='MyFavoriteBook.css') }}">
+
 </head>
 <body>
 	{% include 'includes/_navbar.html' %}
-	<br>
-	<br>
-	<br>
 	<div class="container">
 		{% include 'includes/_messages.html' %}
 		{% block body%}{%endblock%}
 		
 	</div> 
-	<!-- Extend this layout file and use this as a wrapper for the file
-
-		Everything in layout shows uop on everypage-->
-
 	<script src = "https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
 </body>
 </html>

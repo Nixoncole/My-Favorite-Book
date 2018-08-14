@@ -1,30 +1,38 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+	{% if session.logged_in %}
+	<div class="jumbotron text-center">
+		<h1>My Favorite Book</h1>
+		<p class = "lead">Sharing the experience.</p>
+	</div>
+
+	{% else %}
+
 	<div class="jumbotron text-center">
 		<h1>My Favorite Book</h1>
 		<p class = "lead">Its about sharing the experience.</p>
-		<p>What does this do?</p>
+		<hr class="my-4">
+		<p>A platform for book lovers to share their personal copy of their favorite books with the world and friends alike. </p>
+		<p>Each book has it's own page, funcitoning like a blog for its readers to share comments, discuss the story, or ask questions. Partake in discussion with everyone who has held YOUR copy of the book.</p>
+		<div class="btn-group">
+			<a href="/register" class="btn btn-primary btn-md">Register</a>
+
+			<a href="/about" class="btn btn-info btn-md">Learn More</a>
+		</div>
 	</div>
 
-	<div>
-		<h1>Scrooolllll.....</h1>
-		<br>
-		<br>
-		<br>
-		<h1>Scrooolllll.....</h1>
-		<br>
-		<br>
-		<br>
-		<h1>Scrooolllll.....</h1>
-		<br>
-		<br>
-		<br>
-		<h1>Scrooolllll.....</h1>
-		<br>
-		<br>
-		<br>
-		
+	{% endif %}
+
+	<div class="text-center"id="mainpage">
+		<h3>What are my options?</h3>
+		<div class="btn-group">
+			<a href="/books" class="btn btn-primary btn-md">My Books</a>
+
+			<a href="/newbook" class="btn btn-info btn-md">Register A Book</a>
+
+			<a href="/profile" class="btn btn-info btn-md">My Profile</a>
+		</div>
 	</div>
 
 {% endblock %}

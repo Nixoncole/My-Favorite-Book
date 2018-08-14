@@ -44,10 +44,20 @@ def user_logged_in(f):
 def index():
 	return render_template('home.html')
 
+@app.route('/about')
+def about():
+	return render_template('about.html')
+
 #should be /<userid>/books, but we'll get there...
 @app.route('/books')
 @user_logged_in
 def books():
+	cur = mysql.connection.cursor()
+	result = cur.execute("SELECT * FROM books WHERE owner = %s", [session['userId']])
+	if result > 0:
+		#Figure out how to grab all the books
+
+
 	return render_template('booksHome.html')
 
 @app.route('/books/<int:id>')
@@ -74,10 +84,10 @@ def login():
 				app.logger.info('PASSWORD MATCHED') #remove later...
 				session['logged_in'] = True
 				session['username'] = username
-
+				session['userId'] = data['id']
 
 				flash('You are logged in', 'success')
-				return redirect(url_for('dashboard'))
+				return redirect(url_for('index'))
 
 			else:
 				error = "Invalid Login"
