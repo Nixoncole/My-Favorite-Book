@@ -52,11 +52,12 @@ def about():
 @app.route('/books')
 @user_logged_in
 def books():
+	'''
 	cur = mysql.connection.cursor()
 	result = cur.execute("SELECT * FROM books WHERE owner = %s", [session['userId']])
 	if result > 0:
 		#Figure out how to grab all the books
-
+	'''
 
 	return render_template('booksHome.html')
 
@@ -65,6 +66,7 @@ def books():
 def book(id):
 	# grab comments from MySQL
 	return render_template('book.html', id=id, comments=Comments)
+
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -136,6 +138,37 @@ def register():
 
 	return render_template('register.html', form=form)
 
+# Cut this out
+class BookForm(Form):
+	title = StringField('Book Title', [validators.Length(min=1, max=100)])
+	bio = TextAreaField('What would you like people to know about your book?', [validators.Length(min=30)])
+	
+
+@app.route('/add_book', methods=['GET', 'POST'])
+@user_logged_in
+def add_book():
+	form = BookForm(request.form)
+	if request.method == 'POST' and form.validate():
+		title = form.title.data
+		bio = form.bio.data
+		# Create cursor
+		cur = mysql.connection.cursor()
+		cur.execute("INSERT INTO books(title, bio, owner, userId) VALUES(%s, %s, %s, %s)", (title, bio, session['username'], int(session['userId'])))
+
+		# Commit to DB
+		mysql.connection.commit()
+
+		# Close connection
+		cur.close()
+
+		flash('Book Added', 'success')
+		return redirect(url_for('books'))
+
+	return render_template('add_book.html', form=form)
+
+
+
+
 # First thing user sees upon login
 @app.route('/dashboard')
 @user_logged_in
@@ -144,6 +177,7 @@ def dashboard():
 
 # Redirect to the home... 
 @app.route('/logout')
+@user_logged_in
 def logout():
 	session.clear()
 	flash('Successfully logged out', 'success')
