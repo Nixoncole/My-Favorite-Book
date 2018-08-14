@@ -1,7 +1,7 @@
 # pip/Homebrew imports
 from flask import Flask, request, render_template, flash, redirect, url_for, session, logging
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, IntegerField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -48,6 +48,7 @@ def index():
 def about():
 	return render_template('about.html')
 
+
 #should be /<userid>/books, but we'll get there...
 @app.route('/books')
 @user_logged_in
@@ -67,31 +68,71 @@ def books():
 	cur.close()
 	
 
-	
+class PageForm(Form):
+	currentPage = IntegerField('Current Page', [validators.NumberRange(min=1, max=999999)])
 
 
-@app.route('/books/<int:id>')
+@app.route('/books/<int:id>', methods = ['GET', 'POST'])
 @user_logged_in
 def book(id):
+	# Set variable for page to filter comments
+	currentPage = 0
+	pageForm = PageForm(request.form)
+	if request.method == 'POST' and pageForm.validate():
+		currentPage = pageForm.currentPage.data
+
 	# grab comments from MySQL
 	cur = mysql.connection.cursor()
 	result = cur.execute("SELECT * FROM books WHERE id = %s", [id])
 
 	if result > 0:
 		book = cur.fetchone()
-		result = cur.execute("SELECT * FROM comments WHERE bookId = %s", [book['id']])
+		result = cur.execute("SELECT * FROM comments WHERE bookId = %s ORDER BY page", [book['id']])
 
 		if result > 0:
 			comments = cur.fetchall()
-			return render_template('book.html', book=book, comments=comments)
+			return render_template('book.html', book=book, comments=comments, pageForm=pageForm, currentPage=currentPage)
 		else:
 			msg = "No comments here yet! Be the first :)"
-			return render_template('book.html', book=book, msg=msg)
+			return render_template('book.html', book=book, msg=msg, pageForm=pageForm, currentPage=currentPage)
 	else:
 		error = "There is no Book with this ID"
 		return render_template('book.html', error=error)
 	# Cant forget!
 	cur.close()
+
+
+
+# Cut this out
+class CommentForm(Form):
+	page = StringField('Page Number', [validators.Length(min=1, max=6)])
+	body = TextAreaField('Comment Body', [validators.Length(min=1)])
+
+
+@app.route('/book/<int:id>/add_comment', methods = ['GET', 'POST'])
+@user_logged_in
+def add_comment(id):
+	form = CommentForm(request.form)
+	if request.method == 'POST' and form.validate():
+		page = form.page.data
+		body = form.body.data
+
+		# Create cursor
+		cur = mysql.connection.cursor()
+		cur.execute("INSERT INTO comments(page, body, owner, userId, bookId) VALUES(%s, %s, %s, %s, %s)", (int(page), body, session['username'], int(session['userId']), int(id)))
+
+		# Commit to DB
+		mysql.connection.commit()
+
+		# Close connection
+		cur.close()
+
+		flash('Comment Added', 'success')
+		return redirect(url_for('book', id=id))
+
+	return render_template('add_comment.html', form=form)
+
+
 
 
 

@@ -6,11 +6,29 @@
 	<hr class="my-4">
 	<h2>Submitted by {{book.owner}}</h2>
 
+	{% from "includes/_formhelpers.html" import render_field %}
+	<form method = "POST" action="">
+		<div class = "form-group w-25">
+			{{render_field(pageForm.currentPage, class_="form-control")}}
+		</div>
+		<p><input type="submit" class="btn btn-primary" value="Submit"></p>
+	</form>
+
 	{% if comments %}
 	<ul class = "list-group">
 		{% for comment in comments %}
-			<li class = "list-group-item">{{comment.body}}</li>
+			{% if (comment.page < currentPage) %}
+			<li class = "list-group-item">{{comment.body | safe}}</li>
+			{% endif %}
 		{% endfor %}
 	</ul>
 	{% endif %}
+
+	<p>
+		<div class="btn-group">
+			<a href="/book/{{ book.id }}/add_comment" class="btn btn-primary btn-md">Add Comment</a>
+		</div>
+	</p>
+
+
 {% endblock %}
