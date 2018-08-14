@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<div class="jumbotron">
 	<h1>{{book.title}}</h1>
 	<h3>By {{book.author}}</h3>
 	<hr class="my-4">
@@ -18,7 +19,10 @@
 	<ul class = "list-group">
 		{% for comment in comments %}
 			{% if (comment.page < currentPage) %}
-			<li class = "list-group-item">{{comment.body | safe}}</li>
+			<li class = "list-group-item"><b>{{comment.owner}}</b>
+				<p>Page: {{comment.page}}</p>
+				<hr class="my-2">
+			<p> {{comment.body | safe}}</p></li>
 			{% endif %}
 		{% endfor %}
 	</ul>
@@ -29,6 +33,6 @@
 			<a href="/book/{{ book.id }}/add_comment" class="btn btn-primary btn-md">Add Comment</a>
 		</div>
 	</p>
-
+</div>
 
 {% endblock %}

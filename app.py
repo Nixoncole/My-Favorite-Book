@@ -6,7 +6,8 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 
 # Personal imports
-from comments import Comments
+
+from myForms import PageForm, CommentForm, RegisterForm, BookForm
 
 
 app = Flask(__name__)
@@ -21,13 +22,6 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # Init MySQL
 mysql = MySQL(app)
 
-
-#Comments = Comments() #dummy comments for now
-
-
-# Access Control
-# Maybe change default to 'Home'
-# Rip this out?
 def user_logged_in(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
@@ -38,8 +32,6 @@ def user_logged_in(f):
 			return redirect(url_for('login'))
 	return wrap
 
-
-
 @app.route('/')
 def index():
 	return render_template('home.html')
@@ -49,7 +41,7 @@ def about():
 	return render_template('about.html')
 
 
-#should be /<userid>/books, but we'll get there...
+# All books a user has control over
 @app.route('/books')
 @user_logged_in
 def books():
@@ -68,10 +60,7 @@ def books():
 	cur.close()
 	
 
-class PageForm(Form):
-	currentPage = IntegerField('Current Page', [validators.NumberRange(min=1, max=999999)])
-
-
+# Page for a book
 @app.route('/books/<int:id>', methods = ['GET', 'POST'])
 @user_logged_in
 def book(id):
@@ -102,13 +91,7 @@ def book(id):
 	cur.close()
 
 
-
-# Cut this out
-class CommentForm(Form):
-	page = StringField('Page Number', [validators.Length(min=1, max=6)])
-	body = TextAreaField('Comment Body', [validators.Length(min=1)])
-
-
+# Add a comment
 @app.route('/book/<int:id>/add_comment', methods = ['GET', 'POST'])
 @user_logged_in
 def add_comment(id):
@@ -132,10 +115,7 @@ def add_comment(id):
 
 	return render_template('add_comment.html', form=form)
 
-
-
-
-
+# Login
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
 	if request.method == 'POST':
@@ -171,16 +151,6 @@ def login():
 	return render_template('login.html')
 
 
-# Cut this out
-class RegisterForm(Form):
-	username = StringField('Username', [validators.Length(min=4, max=30)])
-	email = StringField('Email', [validators.Length(min=6, max=50)])
-	password = PasswordField('Password', [
-		validators.DataRequired(),
-		validators.EqualTo('confirm', message='Passwords do not match')
-	])
-	confirm = PasswordField('Confirm Password')
-
 # User Registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -204,14 +174,8 @@ def register():
 		flash('You are now registered and can log in.', 'success')
 		return redirect(url_for('login'))
 
-	return render_template('register.html', form=form)
+	return render_template('register.html', form=form)	
 
-# Cut this out
-class BookForm(Form):
-	title = StringField('Book Title', [validators.Length(min=1, max=100)])
-	author = StringField('Book Author', [validators.Length(min=1, max=50)])
-	bio = TextAreaField('What would you like people to know about your book?', [validators.Length(min=30)])
-	
 
 @app.route('/add_book', methods=['GET', 'POST'])
 @user_logged_in
@@ -237,8 +201,6 @@ def add_book():
 	return render_template('add_book.html', form=form)
 
 
-
-
 # First thing user sees upon login
 @app.route('/dashboard')
 @user_logged_in
@@ -252,6 +214,8 @@ def logout():
 	session.clear()
 	flash('Successfully logged out', 'success')
 	return redirect(url_for('login'))
+
+	
 # Actual Script...
 if __name__ == '__main__':
 	app.secret_key='secret123'
