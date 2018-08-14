@@ -1,10 +1,16 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-	<h1>{{id}}</h1>
+	<h1>{{book.title}}</h1>
+	<h3>By {{book.author}}</h3>
+	<hr class="my-4">
+	<h2>Submitted by {{book.owner}}</h2>
+
+	{% if comments %}
 	<ul class = "list-group">
 		{% for comment in comments %}
-			<li class = "list-group-item"><a href = "article/{{comment.id}}">{{comment.body}}</a> </li>
+			<li class = "list-group-item">{{comment.body}}</li>
 		{% endfor %}
 	</ul>
+	{% endif %}
 {% endblock %}

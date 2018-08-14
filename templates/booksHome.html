@@ -4,5 +4,24 @@
 	<h2>Books</h2>
 	<p>Herein lies your books</p>
 	<a class="btn btn-success" href="/add_book">Add a Book</a>
-	
+	<p></p>
+	<table class="table table-striped">
+		<tr>
+			<th>Title</th>
+			<th>Author</th>
+			<th>Your Bio</th>
+			<th>Date Added</th>
+			<th></th>
+		</tr>
+		{% for book in allbooks %}
+		<tr>
+			<td>{{ book.title }}</td>
+			<td>{{ book.author }}</td>
+			<td>{{ book.bio | safe}}</td>
+			<td>{{ book.date_added }}</td>
+			<td><a href="books/{{ book.id }}" class="btn btn-primary pullright">View</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+
 {% endblock %}

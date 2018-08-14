@@ -22,7 +22,7 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
-Comments = Comments() #dummy comments for now
+#Comments = Comments() #dummy comments for now
 
 
 # Access Control
@@ -52,20 +52,47 @@ def about():
 @app.route('/books')
 @user_logged_in
 def books():
-	'''
+	# Get the books
 	cur = mysql.connection.cursor()
-	result = cur.execute("SELECT * FROM books WHERE owner = %s", [session['userId']])
-	if result > 0:
-		#Figure out how to grab all the books
-	'''
+	result = cur.execute("SELECT * FROM books WHERE userId = %s", [session['userId']])
 
-	return render_template('booksHome.html')
+	if result > 0:
+		allbooks = cur.fetchall()
+		return render_template('booksHome.html', allbooks=allbooks)
+
+	else:
+		msg = 'No Books for you!'
+		return render_template('booksHome.html', msg=msg)
+	# Close it
+	cur.close()
+	
+
+	
+
 
 @app.route('/books/<int:id>')
 @user_logged_in
 def book(id):
 	# grab comments from MySQL
-	return render_template('book.html', id=id, comments=Comments)
+	cur = mysql.connection.cursor()
+	result = cur.execute("SELECT * FROM books WHERE id = %s", [id])
+
+	if result > 0:
+		book = cur.fetchone()
+		result = cur.execute("SELECT * FROM comments WHERE bookId = %s", [book['id']])
+
+		if result > 0:
+			comments = cur.fetchall()
+			return render_template('book.html', book=book, comments=comments)
+		else:
+			msg = "No comments here yet! Be the first :)"
+			return render_template('book.html', book=book, msg=msg)
+	else:
+		error = "There is no Book with this ID"
+		return render_template('book.html', error=error)
+	# Cant forget!
+	cur.close()
+
 
 
 @app.route('/login', methods = ['GET', 'POST'])
@@ -141,6 +168,7 @@ def register():
 # Cut this out
 class BookForm(Form):
 	title = StringField('Book Title', [validators.Length(min=1, max=100)])
+	author = StringField('Book Author', [validators.Length(min=1, max=50)])
 	bio = TextAreaField('What would you like people to know about your book?', [validators.Length(min=30)])
 	
 
@@ -150,10 +178,11 @@ def add_book():
 	form = BookForm(request.form)
 	if request.method == 'POST' and form.validate():
 		title = form.title.data
+		author = form.author.data
 		bio = form.bio.data
 		# Create cursor
 		cur = mysql.connection.cursor()
-		cur.execute("INSERT INTO books(title, bio, owner, userId) VALUES(%s, %s, %s, %s)", (title, bio, session['username'], int(session['userId'])))
+		cur.execute("INSERT INTO books(title, author, bio, owner, userId) VALUES(%s, %s, %s, %s, %s)", (title, author, bio, session['username'], int(session['userId'])))
 
 		# Commit to DB
 		mysql.connection.commit()
