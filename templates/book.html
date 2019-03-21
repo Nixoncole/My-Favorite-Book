@@ -17,11 +17,66 @@
 
 {% block body %}
 <div class="jumbotron">
+
+	<script type="text/javascript">
+
+		var myMap;
+		var allComments;
+		function initMap(){
+			mapArea = document.getElementById('map');
+			myMap = new google.maps.Map(mapArea, {
+				center: {lat:45.3849778, lng:-122.9239689},
+				zoom: 9
+			});
+			let checkComments = '{{ comments | tojson}}';
+			if (checkComments.length > 3){
+				console.log(checkComments.length);
+				allComments = JSON.parse(checkComments);
+				updateMap(allComments);
+			}
+		}
+
+		function updateMap(comments){
+			console.log(comments);
+			mapArea = document.getElementById('map');
+			var markers = [];
+			var i;
+			for(i=0;i<comments.length;i++){
+				markers.push([comments[i]['lat'], comments[i]['lng']])
+			}
+			console.log(markers);
+
+			myMap = new google.maps.Map(mapArea);
+
+			var latlngbounds = new google.maps.LatLngBounds();
+
+			for(i=0;i<markers.length;i++){
+				let point = new google.maps.LatLng(markers[i][0], markers[i][1])
+				latlngbounds.extend(point);
+				var marker=new google.maps.Marker({
+					position: point,
+					animation: google.maps.Animation.BOUNCE
+				});
+
+				marker.setMap(myMap);
+			}
+			myMap.fitBounds(latlngbounds);
+		}
+
+	</script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=initMap"></script>
+
+
 	<h1>{{book.title}}</h1>
 	<h3>By {{book.author}}</h3>
+	<h5>Submitted by User: {{book.owner}}</h5>
 	<hr class="my-4">
-	<h2>Submitted by {{book.owner}}</h2>
 
+	<h5>Where in the world have people read THIS book:</h5>
+
+	<div id="map" style="width:100%; height:400px;"></div>
+
+	<hr class="my-4">
 	{% from "includes/_formhelpers.html" import render_field %}
 	<form method = "POST" action="">
 		<div class = "form-group w-25">
@@ -33,12 +88,15 @@
 	{% if comments %}
 	<ul class = "list-group">
 		{% for comment in comments %}
-			{% if (comment.page < currentPage) %}
-			<li class = "list-group-item"><b>{{comment.owner}}</b>
-				<p>Page: {{comment.page}}</p>
-				<hr class="my-2">
-			<p> {{comment.body | safe}}</p></li>
+			{% if comment.page %}
+				{% if (comment.page < currentPage) %}
+				<li class="list-group-item"><b>{{comment.owner}}</b>
+					<p>Page: {{comment.page}}</p>
+					<hr class="my-2">
+				<p> {{comment.body | safe}}</p></li>
+				{% endif %}
 			{% endif %}
+
 		{% endfor %}
 	</ul>
 	{% endif %}

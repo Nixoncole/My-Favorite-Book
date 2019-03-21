@@ -20,6 +20,7 @@ class PageForm(Form):
 class CommentForm(Form):
 	page = StringField('Page Number', [validators.Length(min=1, max=6)])
 	body = TextAreaField('Comment Body', [validators.Length(min=1)])
+	location = StringField('What city are you commenting from? (eg. "portland or") ', [validators.Length(min=1, max=100)])
 
 
 # Cut this out
@@ -37,4 +38,12 @@ class BookForm(Form):
 	title = StringField('Book Title', [validators.Length(min=1, max=100)])
 	author = StringField('Book Author', [validators.Length(min=1, max=50)])
 	bio = TextAreaField('What would you like people to know about your book?', [validators.Length(min=30)])
+
+
+class OrderForm(Form):
+	name = StringField('Full Name', [validators.Length(min=1, max=100)])
+	address = StringField('Street Address', [validators.Length(min=1, max=100)])
+	city = StringField('City', [validators.Length(min=1, max=100)])
+	state = StringField('State', [validators.Length(min=1, max=100)])
+	zip = StringField('ZipCode', [validators.Length(min=1, max=100)])
 

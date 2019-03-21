@@ -14,6 +14,41 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+	<script>
+		var geocoder;
+		var map;
+		function initialize() {
+			geocoder = new google.maps.Geocoder();
+			var latlng = new google.maps.LatLng(-34.397, 150.644);
+			var mapOptions = {
+				zoom: 12,
+				center: latlng
+			}
+			map = new google.maps.Map(document.getElementById('map'), mapOptions);
+			document.getElementById('submission').disabled = true;
+		}
+
+		function codeAddress() {
+			var address = document.getElementById('geocode').value;
+			geocoder.geocode( {'address': address}, function(results, status) {
+				if (status == 'OK') {
+					map.setCenter(results[0].geometry.location);
+					var marker = new google.maps.Marker({
+						map: map,
+						position: results[0].geometry.location
+					});
+					document.getElementById('geocode').value = results[0].geometry.location;
+					document.getElementById('submission').disabled = false;
+
+				} else {
+					alert('Geocode was not successful for the following reason: ' + status);
+				}
+			});
+		}
+	</script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=initialize"></script>
+
+
 	<h1>Add a Comment</h1>
 	{% from "includes/_formhelpers.html" import render_field %}
 	<form method = "POST" action="">
@@ -23,7 +58,15 @@
 		<div class = "form-group">
 			{{render_field(form.body, class_="form-control", id="editor")}}
 		</div>
-		<p><input type="submit" class="btn btn-primary" value="Submit"></p>
+		<div class = "form-group w-50">
+			{{render_field(form.location, class_="form-control", id="geocode")}}
+			<br>
+			<input type="button" value="Encode" class="btn btn-success" onclick="codeAddress()">
+		</div>
+		<p><input type="submit" id="submission" class="btn btn-primary" value="Submit"></p>
 	</form>
+
+	<div id="map" style="width:100%; height:400px;"></div>
+
 
 {% endblock %}
