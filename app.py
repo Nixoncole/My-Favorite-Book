@@ -191,7 +191,6 @@ def login():
             data = cur.fetchone()
             password = data['password']
             if sha256_crypt.verify(password_attempt, password):
-                app.logger.info('PASSWORD MATCHED')  # remove later...
                 session['logged_in'] = True
                 session['username'] = username
                 session['userId'] = data['id']
