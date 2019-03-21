@@ -34,7 +34,7 @@
 			<td>{{ book.bio | safe}}</td>
 			<td>{{ book.date_added }}</td>
 			<td><a href="books/{{ book.id }}" class="btn btn-primary pullright">View</a></td>
-			<td><a href="/qr/{{ book.id }}" class="btn btn-success">Download QR</a></td>
+			<td><a href="/qr/{{ book.id }}" class="btn btn-success">Order QR</a></td>
 		</tr>
 		{% endfor %}
 	</table>

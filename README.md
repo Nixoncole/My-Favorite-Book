@@ -49,11 +49,31 @@ pip install passlib
 pip install requests
 ```
 
-Finally, run MySQL as the root user and create a database for the application to acccess, I named mine "my_favorite_book".
+Run MySQL as the root user and create a database for the application to acccess, I named mine "my_favorite_book".
 ```
 mysql -u root
 mysql> create database {DB_Name_Here};
 ```
+
+### API Keys and Account Creation
+In order to run this software, you must have a Google account and a Pwinty account (http://pwinty.com/api/).
+
+In your Pwinty API sandbox, you can find your keys under the "settings" section, "integrations" tab of the Production 
+API dashboard (not sandbox). For our purposes, use you sandbox key and merchantId.
+
+In your Google Cloud Platform, create a project to gain access to the API console. Once in your project, navigate to 
+the "APIs and Services" dashboard, where you can enable APIs for this project. Enable these three:
+```
+    Geocoding API
+    Maps JavaScript API
+    Maps Embed API
+```
+The next step is to create credentials for accessing these APIs, thankfully Google makes it easy and you need one key
+for all three APIs. Navigate to "credentials" on the side, and then hit "create credentials", selecting "API Key" from
+ the dropdown.
+ 
+Now that you have all of your necessary keys, place them in `keys.py` under their appropriate names. 
+
 
 ### Running Application
 After you have your MySQL database, run the application by navigating to the directory where you cloned the repo and type
